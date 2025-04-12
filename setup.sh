@@ -57,6 +57,9 @@ fi
 # Copy dotfiles
 DOTFILES_DIR="$HOME/dotfiles"
 
+# Ensure .zshrc exists
+touch ~/.zshrc
+
 # Helix
 mkdir -p ~/.config/helix
 cp -r $DOTFILES_DIR/helix/* ~/.config/helix/ 2>/dev/null || true
@@ -80,14 +83,16 @@ mkdir -p ~/.config
 cp -r $DOTFILES_DIR/starship/* ~/.config/ 2>/dev/null || true
 
 # Configure Starship autocompletion
-if ! grep -q "starship completions zsh" ~/.zshrc; then
-    echo '# Enable Starship autocompletion' >> ~/.zshrc
-    echo 'source <(starship completions zsh)' >> ~/.zshrc
+if ! grep -q "starship init zsh" ~/.zshrc; then
+    echo '# Enable Starship prompt' >> ~/.zshrc
     echo 'eval "$(starship init zsh)"' >> ~/.zshrc
 fi
 
+# Install Zsh completions
+sudo apt-get install -y zsh-completions
+
 # Clean up
 sudo apt-get clean
-rm -rf /var/lib/apt/lists/*
+sudo rm -rf /var/lib/apt/lists/*
 
 echo "Setup complete! Run 'zsh' to start your configured shell."

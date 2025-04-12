@@ -1,86 +1,96 @@
 #!/bin/bash
-set -euo pipefail
+set -e
 
-# Determine the root directory of your repository (dotfiles)
-DOTFILES_ROOT="$(cd "$(dirname "$0")" && pwd)"
-echo "Using dotfiles root: ${DOTFILES_ROOT}"
+# Update package lists
+sudo apt-get update
 
-# Function to create a symlink after backing up an existing file if needed
-link_file() {
-    local src="$1"
-    local dest="$2"
-    if [ -e "$dest" ] && [ ! -L "$dest" ]; then
-        echo "Backing up existing file $dest to ${dest}.bak"
-        mv "$dest" "${dest}.bak"
-    fi
-    if [ -L "$dest" ]; then
-        rm -f "$dest"
-    fi
-    ln -s "$src" "$dest"
-    echo "Symlinked $src to $dest"
-}
+# Install core dependencies
+sudo apt-get install -y \
+    curl \
+    git \
+    zsh \
+    build-essential \
+    libssl-dev \
+    pkg-config
 
-echo "Starting dotfiles setup..."
+# Install Rust
+if ! command -v rustc &> /dev/null; then
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    source $HOME/.cargo/env
+fi
 
-### Helix Configurations ###
-echo "Setting up Helix configuration..."
-# Create Helix configuration directory if it doesn't exist
+# Install Helix (if not provided by devcontainer feature)
+if ! command -v hx &> /dev/null; then
+    curl -LO https://github.com/helix-editor/helix/releases/download/24.07/helix-24.07-x86_64-linux.tar.xz
+    sudo tar -xf helix-24.07-x86_64-linux.tar.xz -C /usr/local/bin --strip-components=1
+    rm helix-24.07-x86_64-linux.tar.xz
+fi
+
+# Install Neovim
+if ! command -v nvim &> /dev/null; then
+    curl -LO https://github.com/neovim/neovim/releases/download/v0.9.5/nvim-linux64.tar.gz
+    sudo tar -xf nvim-linux64.tar.gz -C /usr/local --strip-components=1
+    rm nvim-linux64.tar.gz
+fi
+
+# Install Starship
+if ! command -v starship &> /dev/null; then
+    curl -sS https://starship.rs/install.sh | sh -s -- -y
+fi
+
+# Install Tmux
+sudo apt-get install -y tmux
+
+# Install Ghostty
+if ! command -v ghostty &> /dev/null; then
+    # Note: Ghostty may require building from source or a custom installer.
+    # Adjust this based on official Ghostty installation instructions.
+    # Placeholder: Assuming a binary or package becomes available.
+    echo "Ghostty installation not automated. Please provide installation steps."
+    # Example (if available via apt or similar in the future):
+    # sudo apt-get install -y ghostty
+    # For now, we’ll ensure the config is copied, and you can install Ghostty manually if needed.
+fi
+
+# Set Zsh as default shell
+if [ ! "$SHELL" = "/bin/zsh" ]; then
+    chsh -s /bin/zsh
+fi
+
+# Copy dotfiles to appropriate locations
+DOTFILES_DIR="/workspaces/dotfiles" # DevPod mounts workspace here
+
+# Helix
 mkdir -p ~/.config/helix
-link_file "${DOTFILES_ROOT}/helix/config.toml" ~/.config/helix/config.toml
-link_file "${DOTFILES_ROOT}/helix/languages.toml" ~/.config/helix/languages.toml
+cp -r $DOTFILES_DIR/helix/* ~/.config/helix/
 
-### Neovim Configuration ###
-if [ -d "${DOTFILES_ROOT}/nvim" ]; then
-    echo "Setting up Neovim configuration..."
-    mkdir -p ~/.config/nvim
-    # Remove any existing nvim symlink or directory
-    rm -rf ~/.config/nvim
-    ln -s "${DOTFILES_ROOT}/nvim" ~/.config/nvim
-    echo "Neovim configuration symlinked."
-else
-    echo "Neovim configuration folder not found in the repository."
+# Neovim
+mkdir -p ~/.config/nvim
+cp -r $DOTFILES_DIR/nvim/* ~/.config/nvim/
+
+# Ghostty
+mkdir -p ~/.config/ghostty
+cp -r $DOTFILES_DIR/ghostty/* ~/.config/ghostty/
+
+# Tmux
+cp $DOTFILES_DIR/tmux/tmux.conf ~/.tmux.conf
+
+# Zsh
+cp $DOTFILES_DIR/zshrc ~/.zshrc
+
+# Starship
+mkdir -p ~/.config
+cp -r $DOTFILES_DIR/starship/* ~/.config/
+
+# Configure Starship autocompletion for Zsh
+if ! grep -q "starship completions zsh" ~/.zshrc; then
+    echo '# Enable Starship autocompletion' >> ~/.zshrc
+    echo 'source <(starship completions zsh)' >> ~/.zshrc
+    echo 'eval "$(starship init zsh)"' >> ~/.zshrc
 fi
 
-### tmux Configuration ###
-if [ -f "${DOTFILES_ROOT}/tmux/.tmux.conf" ]; then
-    echo "Setting up tmux configuration..."
-    link_file "${DOTFILES_ROOT}/tmux/.tmux.conf" ~/.tmux.conf
-else
-    echo "tmux configuration file (.tmux.conf) not found in the repository/tmux folder."
-fi
+# Clean up
+sudo apt-get clean
+rm -rf /var/lib/apt/lists/*
 
-### Starship Configuration ###
-if [ -f "${DOTFILES_ROOT}/starship/starship.toml" ]; then
-    echo "Setting up Starship configuration..."
-    mkdir -p ~/.config
-    link_file "${DOTFILES_ROOT}/starship/starship.toml" ~/.config/starship.toml
-else
-    echo "Starship configuration file (starship.toml) not found in the repository/starship folder."
-fi
-
-### Ghostty Configuration ###
-if [ -d "${DOTFILES_ROOT}/ghostty" ]; then
-    echo "Setting up Ghostty configuration..."
-    mkdir -p ~/.config/ghostty
-    # Here we copy the files instead of linking (adjust as needed)
-    cp -r "${DOTFILES_ROOT}/ghostty/"* ~/.config/ghostty/
-    echo "Ghostty configuration copied."
-else
-    echo "Ghostty configuration folder not found in the repository."
-fi
-
-### Bash Configuration (Optional) ###
-# If you have custom bash configurations inside a 'bash' folder in your dotfiles:
-if [ -f "${DOTFILES_ROOT}/bash/.bashrc" ]; then
-    echo "Setting up bash configuration..."
-    # Optionally, source a custom bash config file from .bashrc
-    if ! grep -q "source ~/.bash_custom" ~/.bashrc; then
-        echo "source ~/.bash_custom" >> ~/.bashrc
-        echo "Added source for ~/.bash_custom in ~/.bashrc"
-    fi
-    cp "${DOTFILES_ROOT}/bash/.bashrc" ~/.bash_custom
-else
-    echo "No custom bash configuration file found."
-fi
-
-echo "Dotfiles setup complete."
+echo "Setup complete! Run 'zsh' to start your configured shell."

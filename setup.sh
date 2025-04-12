@@ -1,25 +1,29 @@
+cat <<EOF > ~/dotfiles/setup.sh
 #!/bin/bash
 set -e
+
+# Ensure non-interactive apt
+export DEBIAN_FRONTEND=noninteractive
 
 # Update package lists
 sudo apt-get update
 
 # Install core dependencies
-sudo apt-get install -y \
-    curl \
-    git \
-    zsh \
-    build-essential \
-    libssl-dev \
+sudo apt-get install -y \\
+    curl \\
+    git \\
+    zsh \\
+    build-essential \\
+    libssl-dev \\
     pkg-config
 
 # Install Rust
 if ! command -v rustc &> /dev/null; then
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-    source $HOME/.cargo/env
+    source \$HOME/.cargo/env
 fi
 
-# Install Helix (if not provided by devcontainer feature)
+# Install Helix
 if ! command -v hx &> /dev/null; then
     curl -LO https://github.com/helix-editor/helix/releases/download/24.07/helix-24.07-x86_64-linux.tar.xz
     sudo tar -xf helix-24.07-x86_64-linux.tar.xz -C /usr/local/bin --strip-components=1
@@ -41,52 +45,46 @@ fi
 # Install Tmux
 sudo apt-get install -y tmux
 
-# Install Ghostty
+# Install Ghostty (placeholder)
 if ! command -v ghostty &> /dev/null; then
-    # Note: Ghostty may require building from source or a custom installer.
-    # Adjust this based on official Ghostty installation instructions.
-    # Placeholder: Assuming a binary or package becomes available.
-    echo "Ghostty installation not automated. Please provide installation steps."
-    # Example (if available via apt or similar in the future):
-    # sudo apt-get install -y ghostty
-    # For now, we’ll ensure the config is copied, and you can install Ghostty manually if needed.
+    echo "Ghostty not installed. Manual installation required."
 fi
 
 # Set Zsh as default shell
-if [ ! "$SHELL" = "/bin/zsh" ]; then
-    chsh -s /bin/zsh
+if [ ! "\$SHELL" = "/bin/zsh" ]; then
+    sudo chsh -s /bin/zsh \$USER
 fi
 
-# Copy dotfiles to appropriate locations
-DOTFILES_DIR="/workspaces/dotfiles" # DevPod mounts workspace here
+# Copy dotfiles
+DOTFILES_DIR="\$HOME/.dotfiles"
 
 # Helix
 mkdir -p ~/.config/helix
-cp -r $DOTFILES_DIR/helix/* ~/.config/helix/
+cp -r \$DOTFILES_DIR/helix/* ~/.config/helix/ 2>/dev/null || true
 
 # Neovim
 mkdir -p ~/.config/nvim
-cp -r $DOTFILES_DIR/nvim/* ~/.config/nvim/
+cp -r \$DOTFILES_DIR/nvim/* ~/.config/nvim/ 2>/dev/null || true
 
 # Ghostty
 mkdir -p ~/.config/ghostty
-cp -r $DOTFILES_DIR/ghostty/* ~/.config/ghostty/
+cp -r \$DOTFILES_DIR/ghostty/* ~/.config/ghostty/ 2>/dev/null || true
 
 # Tmux
-cp $DOTFILES_DIR/tmux/tmux.conf ~/.tmux.conf
+cp \$DOTFILES_DIR/tmux/tmux.conf ~/.tmux.conf 2>/dev/null || true
 
 # Zsh
-cp $DOTFILES_DIR/zshrc ~/.zshrc
+cp \$DOTFILES_DIR/zshrc ~/.zshrc 2>/dev/null || true
 
 # Starship
 mkdir -p ~/.config
-cp -r $DOTFILES_DIR/starship/* ~/.config/
+cp -r \$DOTFILES_DIR/starship/* ~/.config/ 2>/dev/null || true
 
-# Configure Starship autocompletion for Zsh
+# Configure Starship autocompletion
 if ! grep -q "starship completions zsh" ~/.zshrc; then
     echo '# Enable Starship autocompletion' >> ~/.zshrc
     echo 'source <(starship completions zsh)' >> ~/.zshrc
-    echo 'eval "$(starship init zsh)"' >> ~/.zshrc
+    echo 'eval "\$(starship init zsh)"' >> ~/.zshrc
 fi
 
 # Clean up
@@ -94,3 +92,4 @@ sudo apt-get clean
 rm -rf /var/lib/apt/lists/*
 
 echo "Setup complete! Run 'zsh' to start your configured shell."
+EOF

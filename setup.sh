@@ -14,19 +14,13 @@ sudo apt-get install -y \
     zsh \
     build-essential \
     libssl-dev \
-    pkg-config
+    pkg-config \
+    helix
 
 # Install Rust
 if ! command -v rustc &> /dev/null; then
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
     source $HOME/.cargo/env
-fi
-
-# Install Helix
-if ! command -v hx &> /dev/null; then
-    curl -LO https://github.com/helix-editor/helix/releases/download/24.07/helix-24.07-x86_64-linux.tar.xz
-    sudo tar -xf helix-24.07-x86_64-linux.tar.xz -C /usr/local/bin --strip-components=1
-    rm helix-24.07-x86_64-linux.tar.xz
 fi
 
 # Install Neovim

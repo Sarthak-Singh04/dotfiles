@@ -8,18 +8,18 @@ export DEBIAN_FRONTEND=noninteractive
 sudo apt-get update
 
 # Install core dependencies
-sudo apt-get install -y \\
-    curl \\
-    git \\
-    zsh \\
-    build-essential \\
-    libssl-dev \\
+sudo apt-get install -y \
+    curl \
+    git \
+    zsh \
+    build-essential \
+    libssl-dev \
     pkg-config
 
 # Install Rust
 if ! command -v rustc &> /dev/null; then
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-    source \$HOME/.cargo/env
+    source $HOME/.cargo/env
 fi
 
 # Install Helix
@@ -50,40 +50,40 @@ if ! command -v ghostty &> /dev/null; then
 fi
 
 # Set Zsh as default shell
-if [ ! "\$SHELL" = "/bin/zsh" ]; then
-    sudo chsh -s /bin/zsh \$USER
+if [ ! "$SHELL" = "/bin/zsh" ]; then
+    sudo chsh -s /bin/zsh $USER
 fi
 
 # Copy dotfiles
-DOTFILES_DIR="\$HOME/.dotfiles"
+DOTFILES_DIR="$HOME/dotfiles"
 
 # Helix
 mkdir -p ~/.config/helix
-cp -r \$DOTFILES_DIR/helix/* ~/.config/helix/ 2>/dev/null || true
+cp -r $DOTFILES_DIR/helix/* ~/.config/helix/ 2>/dev/null || true
 
 # Neovim
 mkdir -p ~/.config/nvim
-cp -r \$DOTFILES_DIR/nvim/* ~/.config/nvim/ 2>/dev/null || true
+cp -r $DOTFILES_DIR/nvim/* ~/.config/nvim/ 2>/dev/null || true
 
 # Ghostty
 mkdir -p ~/.config/ghostty
-cp -r \$DOTFILES_DIR/ghostty/* ~/.config/ghostty/ 2>/dev/null || true
+cp -r $DOTFILES_DIR/ghostty/* ~/.config/ghostty/ 2>/dev/null || true
 
 # Tmux
-cp \$DOTFILES_DIR/tmux/tmux.conf ~/.tmux.conf 2>/dev/null || true
+cp $DOTFILES_DIR/tmux/tmux.conf ~/.tmux.conf 2>/dev/null || true
 
 # Zsh
-cp \$DOTFILES_DIR/zshrc ~/.zshrc 2>/dev/null || true
+cp $DOTFILES_DIR/zshrc ~/.zshrc 2>/dev/null || true
 
 # Starship
 mkdir -p ~/.config
-cp -r \$DOTFILES_DIR/starship/* ~/.config/ 2>/dev/null || true
+cp -r $DOTFILES_DIR/starship/* ~/.config/ 2>/dev/null || true
 
 # Configure Starship autocompletion
 if ! grep -q "starship completions zsh" ~/.zshrc; then
     echo '# Enable Starship autocompletion' >> ~/.zshrc
     echo 'source <(starship completions zsh)' >> ~/.zshrc
-    echo 'eval "\$(starship init zsh)"' >> ~/.zshrc
+    echo 'eval "$(starship init zsh)"' >> ~/.zshrc
 fi
 
 # Clean up

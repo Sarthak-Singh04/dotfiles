@@ -1,0 +1,69 @@
+theme = "catppuccin_mocha"
+
+[editor]
+mouse = true
+auto-save = true
+rulers = [80, 120]
+cursorline = true
+cursorcolumn = true
+bufferline = "always"
+color-modes=true
+end-of-line-diagnostics="hint"
+
+[editor.inline-diagnostics]
+cursor-line="warning"
+
+
+
+[editor.cursor-shape]
+insert = "bar"
+normal = "block"
+select = "underline"
+
+[editor.soft-wrap]
+enable = true
+wrap-indicator = "↩ "
+
+[editor.whitespace.render]
+space = "all"
+tab = "all"
+newline = "none"
+
+[editor.whitespace.characters]
+space = " "
+nbsp = "⍽"
+tab = "→"
+newline = "⏎"
+tabpad = "·"
+
+[editor.statusline]
+left = ["mode", "spinner", "diagnostics"]
+center = ["file-name", "separator", "version-control", "separator"]
+right = ["position", "position-percentage", "total-line-numbers"]
+separator = "│"
+mode.normal = "NORMAL"
+mode.insert = "INSERT"
+mode.select = "SELECT"
+
+[editor.lsp]
+display-inlay-hints = true
+auto-signature-help = true # Show function signature help
+enable = true              # Enable LSP support
+
+[editor.indent-guides]
+render = true
+character = "╎"
+skip-levels = 1
+
+[editor.file-picker]
+hidden = false
+
+[keys.normal]
+ins = "insert_mode"
+space.c = "toggle_comments"
+X = "extend_line_above"
+D = ["extend_to_line_end", "change_selection"]
+"tab" = "goto_next_function"
+"S-tab" = "goto_prev_function"
+
+    

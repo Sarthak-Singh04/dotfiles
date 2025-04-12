@@ -1,0 +1,99 @@
+# 🐍 Python
+[[language]]
+name = "python"
+language-id = "python"
+roots = ["pyproject.toml", "setup.py", "poetry.lock", ".git", ".jj", ".venv/"]
+language-servers = ["ruff", "pyright"]
+auto-format = true
+formatter = { command = "ruff", args = ["format", "-"] }
+file-types = ["py", "ipynb"]
+comment-token = "#"
+shebangs = ["python"]
+
+[language-server.pyright]
+command = "pyright-langserver"
+args = ["--stdio"]
+
+[language-server.ruff]
+command = "ruff"
+args = ["server"]
+environment = { "RUFF_TRACE" = "messages" }
+
+# 📜 JavaScript
+[[language]]
+name = "javascript"
+auto-format = true
+formatter = { command = "prettier", args = ["--parser", "typescript"] }
+language-servers = ["typescript-language-server"]
+
+# 📌 TypeScript
+[[language]]
+name = "typescript"
+auto-format = true
+formatter = { command = "prettier", args = ["--parser", "typescript"] }
+language-servers = ["typescript-language-server"]
+
+# ⚛️ React (TSX)
+[[language]]
+name = "tsx"
+auto-format = true
+formatter = { command = "prettier", args = ["--parser", "typescript"] }
+language-servers = ["typescript-language-server"]
+
+# ⚛️ React (JSX)
+[[language]]
+name = "jsx"
+auto-format = true
+formatter = { command = "prettier", args = ["--parser", "typescript"] }
+language-servers = ["typescript-language-server"]
+
+# 🛠 TypeScript Language Server
+[language-server.typescript-language-server]
+command = "typescript-language-server"
+args = ["--stdio"]
+
+# 🌐 HTML
+[[language]]
+name = "html"
+formatter = { command = "prettier", args = ["--parser", "html"] }
+
+# 📊 JSON
+[[language]]
+name = "json"
+formatter = { command = "prettier", args = ["--parser", "json"] }
+
+# 🎨 CSS
+[[language]]
+name = "css"
+formatter = { command = "prettier", args = ["--parser", "css"] }
+
+# 🐳 Dockerfile
+[[language]]
+name = "dockerfile"
+file-types = ["Dockerfile", ".dockerfile"]
+roots = []
+language-servers = ["docker-langserver"]
+
+[language-server.docker-langserver]
+command = "docker-langserver"
+args = ["--stdio"]
+
+# 📝 TOML
+[[language]]
+name = "toml"
+file-types = ["toml"]
+formatter = { command = "taplo", args = ["fmt", "-"] }
+language-servers = ["taplo"]
+
+[language-server.taplo]
+command = "taplo"
+args = ["lsp", "stdio"]
+
+[[language]]
+name = "rust"
+language-servers = ["rust-analyzer"]
+auto-format = true
+roots = ["Cargo.toml", "Cargo.lock"]
+
+[language-server.rust-analyzer]
+command = "rust-analyzer"

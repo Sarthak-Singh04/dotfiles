@@ -1,4 +1,3 @@
-cat <<EOF > ~/dotfiles/setup.sh
 #!/bin/bash
 set -e
 
@@ -92,4 +91,3 @@ sudo apt-get clean
 rm -rf /var/lib/apt/lists/*
 
 echo "Setup complete! Run 'zsh' to start your configured shell."
-EOF
